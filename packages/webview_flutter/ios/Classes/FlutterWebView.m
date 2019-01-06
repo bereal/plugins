@@ -236,6 +236,8 @@
     } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
       NSNumber* hasDartNavigationDelegate = settings[key];
       _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
+    } else if ([key isEqualToString:@"mediaPlaybackRequiresUserGesture"]) {
+        // nothing to do
     } else {
       NSLog(@"webview_flutter: unknown setting key: %@", key);
     }

@@ -117,6 +117,7 @@ class WebView extends StatefulWidget {
     this.navigationDelegate,
     this.gestureRecognizers,
     this.onPageFinished,
+    this.mediaPlaybackRequiresUserGesture,
   })  : assert(javascriptMode != null),
         super(key: key);
 
@@ -204,6 +205,7 @@ class WebView extends StatefulWidget {
   /// directly in the HTML has been loaded and code injected with
   /// [WebViewController.evaluateJavascript] can assume this.
   final PageFinishedCallback onPageFinished;
+  final bool mediaPlaybackRequiresUserGesture;
 
   @override
   State<StatefulWidget> createState() => _WebViewState();
@@ -324,22 +326,26 @@ class _WebSettings {
   _WebSettings({
     this.javascriptMode,
     this.hasNavigationDelegate,
+    this.mediaPlaybackRequiresUserGesture,
   });
 
   static _WebSettings fromWidget(WebView widget) {
     return _WebSettings(
       javascriptMode: widget.javascriptMode,
       hasNavigationDelegate: widget.navigationDelegate != null,
+      mediaPlaybackRequiresUserGesture: widget.mediaPlaybackRequiresUserGesture,
     );
   }
 
   final JavascriptMode javascriptMode;
   final bool hasNavigationDelegate;
+  final bool mediaPlaybackRequiresUserGesture;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'jsMode': javascriptMode.index,
       'hasNavigationDelegate': hasNavigationDelegate,
+      'mediaPlaybackRequiresUserGesture': mediaPlaybackRequiresUserGesture,
     };
   }
 
@@ -350,6 +356,9 @@ class _WebSettings {
     }
     if (hasNavigationDelegate != newSettings.hasNavigationDelegate) {
       updates['hasNavigationDelegate'] = newSettings.hasNavigationDelegate;
+    }
+    if (mediaPlaybackRequiresUserGesture != newSettings.mediaPlaybackRequiresUserGesture) {
+      updates['mediaPlaybackRequiresUserGesture'] = newSettings.mediaPlaybackRequiresUserGesture;
     }
     return updates;
   }

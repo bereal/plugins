@@ -199,8 +199,10 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
           final WebViewClient webViewClient =
               flutterWebViewClient.createWebViewClient(hasNavigationDelegate);
-
           webView.setWebViewClient(webViewClient);
+          break;
+        case "mediaPlaybackRequiresUserGesture":
+          webView.getSettings().setMediaPlaybackRequiresUserGesture((Boolean) settings.get(key));
           break;
         default:
           throw new IllegalArgumentException("Unknown WebView setting: " + key);
