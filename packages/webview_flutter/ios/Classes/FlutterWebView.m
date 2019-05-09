@@ -246,12 +246,18 @@
   WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
   configuration.allowsInlineMediaPlayback = true;
   NSNumber* requiresGesture = settings[@"mediaPlaybackRequiresUserGesture"];
-  if (requiresGesture && [requiresGesture boolValue]) {
+  if (requiresGesture && ![requiresGesture boolValue]) {
     if (@available(iOS 10, *)) {
+      NSLog(@"Setting mediaTypesRequiringUserActionForPlayback");
       configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
     } else if (@available(iOS 9, *)) {
+      NSLog(@"Setting requiresUserActionForMediaPlayback");
       configuration.requiresUserActionForMediaPlayback = true;
+    } else {
+      NSLog(@"requiresUserGesture is not supported");
     }
+  } else {
+    NSLog(@"mediaPlaybackRequiresUserGesture is not set");
   }
   return configuration;
 }
