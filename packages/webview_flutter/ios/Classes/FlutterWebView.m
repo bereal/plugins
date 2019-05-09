@@ -62,9 +62,8 @@
       [self registerJavaScriptChannels:_javaScriptChannelNames controller:userContentController];
     }
 
-    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = userContentController;
-
+    NSDictionary<NSString*, id>* settings = args[@"settings"];
+    WKWebViewConfiguration* configuration = [self createConfiguration settings];
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.navigationDelegate = _navigationDelegate;
@@ -72,7 +71,6 @@
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
     }];
-    NSDictionary<NSString*, id>* settings = args[@"settings"];
     [self applySettings:settings];
 
     NSString* initialUrl = args[@"initialUrl"];
@@ -229,8 +227,6 @@
 }
 
 - (void)applySettings:(NSDictionary<NSString*, id>*)settings {
-  [_webView configuration].allowsInlineMediaPlayback = YES;
-  NSLog(@"allowsInlintMediaPlayback=%@", ([_webView configuration].allowsInlineMediaPlayback) ? @"YES":@"NO");
   for (NSString* key in settings) {
     if ([key isEqualToString:@"jsMode"]) {
       NSNumber* mode = settings[key];
@@ -239,12 +235,25 @@
       NSNumber* hasDartNavigationDelegate = settings[key];
       _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
     } else if ([key isEqualToString:@"mediaPlaybackRequiresUserGesture"]) {
-      NSNumber* requiresGesture = settings[key];
-      [self updateRequiresGesture:[requiresGesture boolValue]];
+      // Handled in configuration
     } else {
       NSLog(@"webview_flutter: unknown setting key: %@", key);
     }
   }
+}
+
+-(WKWebViewConfiguration *)createConfiguration:(NSDictionary<NSString*, id>*)settings {
+  WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+  configuration.allowsInlineMediaPlayback = true;
+  NSNumber* requiresGesture = settings[key];
+  if (requiresGesture && [requiresGesture boolValue]) {
+    if (@available(iOS 10, *)) {
+      configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+    } else if (@available(iOS 9, *)) {
+      configuration.requiresUserActionForMediaPlayback = true;
+    }
+  }
+  return configuration;
 }
 
 - (void)updateJsMode:(NSNumber*)mode {
@@ -258,17 +267,6 @@
       break;
     default:
       NSLog(@"webview_flutter: unknown JavaScript mode: %@", mode);
-  }
-}
-
-- (void)updateRequiresGesture:(bool)value {
-  WKWebViewConfiguration* config = [_webView configuration];
-  if (@available(iOS 10, *)) {
-    if (value) {
-      config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
-    }
-  } else if (@available(iOS 9, *)) {
-    config.requiresUserActionForMediaPlayback = value;
   }
 }
 
