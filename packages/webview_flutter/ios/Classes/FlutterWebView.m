@@ -63,7 +63,7 @@
     }
 
     NSDictionary<NSString*, id>* settings = args[@"settings"];
-    WKWebViewConfiguration* configuration = [self createConfiguration settings];
+    WKWebViewConfiguration* configuration = [self createConfiguration:settings];
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.navigationDelegate = _navigationDelegate;
@@ -245,7 +245,7 @@
 -(WKWebViewConfiguration *)createConfiguration:(NSDictionary<NSString*, id>*)settings {
   WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
   configuration.allowsInlineMediaPlayback = true;
-  NSNumber* requiresGesture = settings[key];
+  NSNumber* requiresGesture = settings[@"mediaPlaybackRequiresUserGesture"];
   if (requiresGesture && [requiresGesture boolValue]) {
     if (@available(iOS 10, *)) {
       configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
